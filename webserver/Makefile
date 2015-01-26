@@ -2,7 +2,7 @@
 # ainsi que les paramètres de compilation
 CC=gcc
 LD=gcc
-CFLAGS=- Wall -W -Werror
+CFLAGS=-Wall -W -Werror
 LDFLAGS=
 # Le nom de l’exécutable à fabriquer
 EXE=pawnee
@@ -38,13 +38,12 @@ $(EXE): $(OBJS)
 # makefile.dep généré afin de comprendre exactement de quoi il retourne.
 makefile.dep: $(CFILES) $(HEADERS)
 				$(CC) -MM $(CFILES) > $@
-6
 # Cette règle efface le fichier de dépendances et les fichiers .o
 clean:
-$(RM) $(OBJS) makefile.dep
+	$(RM) $(OBJS) makefile.dep
 # Cette règle effectue la précédente et efface en plus l’exécutable
 mrproper : clean
-$(RM) $(EXE)
+	$(RM) $(EXE)
 # On inclue le fichier de dépendance qui va contenir les règles
 # de construction des fichiers .o
 # S’il n’existe pas, make invoque automatiquement la règle
