@@ -49,20 +49,26 @@ int creer_serveur (int port)
     return -1;
   }
   int socket_client ;
-	while(1){
-		socket_client = accept(socket_serveur, NULL, NULL);
-		
-		
-		if (socket_client == -1)
-		{
-		  perror("accept");
-		  return -1;
-		}
-		sleep(1);
-		const char* message_bienvenue = "Bonjour, bienvenue sur mon serveur\n" ;
-		write(socket_client, message_bienvenue, strlen(message_bienvenue));
+
+	socket_client = accept(socket_serveur, NULL, NULL);
+	
+	
+	if (socket_client == -1)
+	{
+	  perror("accept");
+	  return -1;
 	}
-  return socket_serveur;
+	sleep(1);
+	const char* message_bienvenue = "Bonjour, bienvenue sur mon serveur\n" ;
+	write(socket_client, message_bienvenue, strlen(message_bienvenue));
+	while(1)
+	{
+		char reception[255] = "";	
+		read(socket_client, &reception, 254);
+		reception [255] = '\0';
+		printf("%s",reception);
+	}  
+	return socket_serveur;
 }
 void initialiser_signaux (void)
 {
