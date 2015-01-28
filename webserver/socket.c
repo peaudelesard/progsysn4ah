@@ -41,13 +41,16 @@ int creer_serveur (int port)
     return -1;
   }
   int socket_client ;
-  socket_client = accept(socket_serveur, NULL, NULL);
-  if (socket_client == -1)
-  {
-    perror("accept");
-    return -1;
-  }
-  const char* message_bienvenue = "Bonjour, bienvenue sur mon serveur\n" ;
-  write(socket_client, message_bienvenue, strlen(message_bienvenue));
+	while(1){
+		socket_client = accept(socket_serveur, NULL, NULL);
+		if (socket_client == -1)
+		{
+		  perror("accept");
+		  return -1;
+		}
+		sleep(1);
+		const char* message_bienvenue = "Bonjour, bienvenue sur mon serveur\n" ;
+		write(socket_client, message_bienvenue, strlen(message_bienvenue));
+	}
   return socket_serveur;
 }
