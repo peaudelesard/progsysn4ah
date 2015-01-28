@@ -5,6 +5,8 @@
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <string.h>
+#include <signal.h>
+
 
 /*struct sockaddr_in {
   sa_family_t sin_family; 
@@ -61,4 +63,11 @@ int creer_serveur (int port)
 		write(socket_client, message_bienvenue, strlen(message_bienvenue));
 	}
   return socket_serveur;
+}
+void initialiser_signaux (void)
+{
+	if ( signal(SIGPIPE, SIG_IGN) == SIG_ERR )
+	{
+		perror( "signal" );
+	}
 }
