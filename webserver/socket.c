@@ -6,6 +6,8 @@
 #include <netinet/ip.h>
 #include <string.h>
 #include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 
 /*struct sockaddr_in {
@@ -18,11 +20,23 @@ struct in_addr {
   uint32_t s_addr ;
 };
 */
-void initialiser_signaux (void)
+void traitement_signal ( int sig )
 {
-	if ( signal(SIGPIPE, SIG_IGN) == SIG_ERR )
+	printf ("Signal %d reçu\n", sig );
+	if(waitpid(-1, NULL, WNOHANG) == -1)
 	{
-		perror( "signal" );
+		perror("waitpid");
+	}
+}
+void initialiser_signaux ( void )
+{
+	struct sigaction sa ;
+	sa.sa_handler = traitement_signal ;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = SA_RESTART;
+	if (sigaction(SIGCHLD, &sa, NULL) == -1)
+	{
+		perror ("sigaction(SIGCHLD)");
 	}
 }
 int creer_serveur (int port)
@@ -59,7 +73,6 @@ int creer_serveur (int port)
 	while(1)
 	{
 		socket_client = accept(socket_serveur, NULL, NULL);
-	
 		if (socket_client == -1)
 		{
 			perror("accept");
