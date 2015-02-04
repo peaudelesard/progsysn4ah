@@ -61,13 +61,13 @@ int creer_serveur (int port)
 	sleep(1);
 	const char* message_bienvenue = "Bonjour, bienvenue sur mon serveur\n" ;
 	write(socket_client, message_bienvenue, strlen(message_bienvenue));
-	while(1)
-	{
+	/*while(1)
+	{*/
 		char reception[255] = "";	
 		read(socket_client, &reception, 254);
 		reception [255] = '\0';
 		printf("%s",reception);
-	}  
+	/*}*/  
 	return socket_serveur;
 }
 void initialiser_signaux (void)
