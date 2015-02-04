@@ -29,7 +29,7 @@ int creer_serveur (int port)
 {
   int socket_serveur ;
 	int optval = 1;
-	/*initialiser_signaux();*/
+	initialiser_signaux();
   socket_serveur = socket(AF_INET, SOCK_STREAM, 0);
   if ( socket_serveur == -1)
   {
@@ -56,25 +56,30 @@ int creer_serveur (int port)
     return -1;
   }
   int socket_client ;
-	
-	socket_client = accept(socket_serveur, NULL, NULL);
-	
-	if (socket_client == -1)
-	{
-	  perror("accept");
-	  return -1;
-	}
-	sleep(1);
-	const char* message_bienvenue = "Bonjour, bienvenue sur mon serveur\n" ;
-	write(socket_client, message_bienvenue, strlen(message_bienvenue));
 	while(1)
 	{
-		char reception[266] = "";	
-		read(socket_client, &reception, 254);
-		/*reception [255] = '\0';*/
-		printf("%s",reception);
-		strcat(reception, " a été reçu");
-		write(socket_client, reception, strlen(reception));
+		socket_client = accept(socket_serveur, NULL, NULL);
+	
+		if (socket_client == -1)
+		{
+			perror("accept");
+			return -1;
+		}
+		if (fork())
+		{
+			sleep(1);
+			const char* message_bienvenue = "Bonjour, bienvenue sur mon serveur\n" ;
+			write(socket_client, message_bienvenue, strlen(message_bienvenue));
+			while(1)
+			{
+				char reception[266] = "";	
+				read(socket_client, &reception, 254);
+				/*reception [255] = '\0';*/
+				printf("%s",reception);
+				strcat(reception, " a été reçu\n");
+				write(socket_client, reception, strlen(reception));
+			}
+		}
 	}  
 	return socket_serveur;
 }
