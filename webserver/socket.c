@@ -8,6 +8,7 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <stdlib.h>
 
 
 /*struct sockaddr_in {
@@ -30,6 +31,10 @@ void traitement_signal ( int sig )
 }
 void initialiser_signaux ( void )
 {
+	if ( signal ( SIGPIPE , SIG_IGN ) == SIG_ERR )
+	{
+		perror ( " signal " );
+	}	
 	struct sigaction sa ;
 	sa.sa_handler = traitement_signal ;
 	sigemptyset(&sa.sa_mask);
@@ -37,7 +42,7 @@ void initialiser_signaux ( void )
 	if (sigaction(SIGCHLD, &sa, NULL) == -1)
 	{
 		perror ("sigaction(SIGCHLD)");
-	}
+	}	
 }
 int creer_serveur (int port)
 {
@@ -61,7 +66,7 @@ int creer_serveur (int port)
 	}
   if ( bind(socket_serveur, (struct sockaddr *)& saddr, sizeof(saddr)) == -1)
   {
-    perror("bind socker_serveur");
+    perror("bind socket_serveur");
     return -1;
   }
   if (listen(socket_serveur, 10) == -1)
@@ -70,29 +75,37 @@ int creer_serveur (int port)
     return -1;
   }
   int socket_client ;
+	const char* message_bienvenue = "Bonjour, bienvenue sur mon serveur\n" ;
 	while(1)
 	{
+		/*FILE* message = fdopen(socket_client, "w+");*/
 		socket_client = accept(socket_serveur, NULL, NULL);
 		if (socket_client == -1)
 		{
 			perror("accept");
 			return -1;
 		}
-		if (fork())
+		if (fork()==0)
 		{
 			sleep(1);
-			const char* message_bienvenue = "Bonjour, bienvenue sur mon serveur\n" ;
+			
+			FILE* message = fdopen(socket_client, "w+");
 			write(socket_client, message_bienvenue, strlen(message_bienvenue));
-			while(1)
-			{
-				char reception[266] = "";	
-				read(socket_client, &reception, 254);
-				/*reception [255] = '\0';*/
+
+			/*fprintf(message, "%s",message_bienvenue);*/
+			char reception[255] = "";
+			while(fgets(reception,1,message) != NULL)
+			{				
+			/*read(socket_client, &reception, 254);*/
+			/*reception [255] = '\0';*/
 				printf("%s",reception);
-				strcat(reception, " a été reçu\n");
-				write(socket_client, reception, strlen(reception));
+				fprintf(message, "<zigzag> %s",reception);
+				/*sleep(100);	*/
 			}
+			/*write(socket_client, reception, strlen(reception));*/
+		
 		}
+		close(socket_client);
 	}  
 	return socket_serveur;
 }
